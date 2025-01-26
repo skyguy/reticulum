@@ -96,7 +96,6 @@ def loglevelname(level):
         return "[Debug]   "
     if (level == LOG_EXTREME):
         return "[Extra]   "
-    
     return "Unknown"
 
 def version():
@@ -128,13 +127,14 @@ def log(msg, level=3, _override_destination = False, pt=False):
         with logging_lock:
             if (logdest == LOG_STDOUT or _always_override_destination or _override_destination):
                 print(logstring)
+                sys.stdout.flush()
 
             elif (logdest == LOG_FILE and logfile != None):
                 try:
                     file = open(logfile, "a")
                     file.write(logstring+"\n")
                     file.close()
-                    
+
                     if os.path.getsize(logfile) > LOG_MAXSIZE:
                         prevfile = logfile+".1"
                         if os.path.isfile(prevfile):
@@ -155,7 +155,7 @@ def log(msg, level=3, _override_destination = False, pt=False):
                     log("Exception occurred while calling external log handler: "+str(e), LOG_CRITICAL)
                     log("Dumping future log events to console!", LOG_CRITICAL)
                     log(msg, level)
-                
+
 
 def rand():
     result = instance_random.random()
@@ -172,7 +172,7 @@ def hexrep(data, delimit=True):
         iter(data)
     except TypeError:
         data = [data]
-        
+
     delimiter = ":"
     if not delimit:
         delimiter = ""
@@ -250,7 +250,7 @@ def prettytime(time, verbose=False, compact=False):
         seconds = int(time)
     else:
         seconds = round(time, 2)
-    
+
     ss = "" if seconds == 1 else "s"
     sm = "" if minutes == 1 else "s"
     sh = "" if hours == 1 else "s"
@@ -301,7 +301,7 @@ def prettyshorttime(time, verbose=False, compact=False):
     if time < 0:
         time = abs(time)
         neg = True
-    
+
     seconds = int(time // 1e6); time %= 1e6
     milliseconds = int(time // 1e3); time %= 1e3
 
@@ -309,7 +309,7 @@ def prettyshorttime(time, verbose=False, compact=False):
         microseconds = int(time)
     else:
         microseconds = round(time, 2)
-    
+
     ss = "" if seconds == 1 else "s"
     sms = "" if milliseconds == 1 else "s"
     sus = "" if microseconds == 1 else "s"
@@ -450,16 +450,16 @@ class Profiler:
     def results():
         from statistics import mean, median, stdev
         results = {}
-        
+
         for tag in Profiler.tags:
             tag_captures = []
             tag_entry = Profiler.tags[tag]
-            
+
             for thread_ident in tag_entry["threads"]:
                 thread_entry = tag_entry["threads"][thread_ident]
                 thread_captures = thread_entry["captures"]
                 sample_count = len(thread_captures)
-                
+
                 if sample_count > 1:
                     thread_results = {
                         "count": sample_count,
